@@ -207,6 +207,8 @@ class BenchmarkBTree:
             insertion_time = self.benchmark_insertion(data)
             insertion_times.append(insertion_time)
 
+
+
         return insertion_times, search_times, deletion_times
 
 def plot_results(data_sizes, insertion_times, search_times, deletion_times):
