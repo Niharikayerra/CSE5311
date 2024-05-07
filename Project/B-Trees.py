@@ -207,8 +207,6 @@ class BenchmarkBTree:
             insertion_time = self.benchmark_insertion(data)
             insertion_times.append(insertion_time)
 
-
-
         return insertion_times, search_times, deletion_times
 
 def plot_results(data_sizes, insertion_times, search_times, deletion_times):
@@ -226,4 +224,3 @@ custom_btree_benchmark = BenchmarkCustomBTree(3)
 data_sizes = [100, 2000, 5000, 10000, 50000, 80000, 100000]  
 insertion_times, search_times, deletion_times = custom_btree_benchmark.run_benchmarks(data_sizes)
 plot_results(data_sizes, insertion_times, search_times, deletion_times)
-
