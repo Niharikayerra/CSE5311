@@ -107,13 +107,6 @@ class Node:
             else:
                 self.merge_children(index - 1)
 
-    def search(self, value):
-        index = self.find_value(value)
-        if index < len(self.values) and self.values[index] == value:
-            return True
-        if self.is_leaf:
-            return False
-        return self.children[index].search(value)
     
     def delete(self, value):
         index = self.find_value(value)
@@ -134,10 +127,29 @@ class Node:
             else:
                 self.children[index].delete(value)
 
+    def search(self, value):
+        index = self.find_value(value)
+        if index < len(self.values) and self.values[index] == value:
+            return True
+        if self.is_leaf:
+            return False
+        return self.children[index].search(value)
+
 class BTree:
     def __init__(self, degree):
         self.root = Node(is_leaf=True)
         BTree.degree = degree
+
+    def delete(self, value):
+        if not self.search(value):
+            print("Value not found")
+            return
+        self.root.delete(value)
+        if len(self.root.values) == 0:
+            if len(self.root.children) > 0:
+                self.root = self.root.children[0]
+            else:
+                self.root = Node(is_leaf=True)
 
     def insert(self, value):
         root = self.root
@@ -151,16 +163,6 @@ class BTree:
     def search(self, value):
         return self.root.search(value)
 
-    def delete(self, value):
-        if not self.search(value):
-            print("Value not found")
-            return
-        self.root.delete(value)
-        if len(self.root.values) == 0:
-            if len(self.root.children) > 0:
-                self.root = self.root.children[0]
-            else:
-                self.root = Node(is_leaf=True)
 
 class BenchmarkBTree:
     def __init__(self, degree):
@@ -169,10 +171,11 @@ class BenchmarkBTree:
     def generate_random_data(self, size):
         return [random.randint(1, 1000000) for _ in range(size)]
 
-    def benchmark_deletion(self, data):
+
+    def benchmark_search(self, data):
         start_time = time.time()
         for value in data:
-            self.btree.delete(value)
+            self.btree.search(value)
         end_time = time.time()
         return end_time - start_time
 
@@ -183,10 +186,10 @@ class BenchmarkBTree:
         end_time = time.time()
         return end_time - start_time
 
-    def benchmark_search(self, data):
+    def benchmark_deletion(self, data):
         start_time = time.time()
         for value in data:
-            self.btree.search(value)
+            self.btree.delete(value)
         end_time = time.time()
         return end_time - start_time
 
@@ -198,16 +201,14 @@ class BenchmarkBTree:
         for size in data_sizes:
             data = self.generate_random_data(size)
 
+            insertion_time = self.benchmark_insertion(data)
+            insertion_times.append(insertion_time)
+
             search_time = self.benchmark_search(data)
             search_times.append(search_time)
 
             deletion_time = self.benchmark_deletion(data)
             deletion_times.append(deletion_time)
-
-            insertion_time = self.benchmark_insertion(data)
-            insertion_times.append(insertion_time)
-
-
 
         return insertion_times, search_times, deletion_times
 
@@ -222,7 +223,9 @@ def plot_results(data_sizes, insertion_times, search_times, deletion_times):
     plt.show()
 
 # Example usage:
-custom_btree_benchmark = BenchmarkCustomBTree(3)
-data_sizes = [100, 2000, 5000, 10000, 50000, 80000, 100000]  
-insertion_times, search_times, deletion_times = custom_btree_benchmark.run_benchmarks(data_sizes)
+btree_benchmark = BenchmarkBTree(3)
+data_sizes =  [100, 2000, 5000, 10000, 50000, 80000, 100000]  
+
+insertion_times, search_times, deletion_times = btree_benchmark.run_benchmarks(data_sizes)
+
 plot_results(data_sizes, insertion_times, search_times, deletion_times)
